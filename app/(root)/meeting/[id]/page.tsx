@@ -8,16 +8,10 @@ import MeetingRoom from '@/components/MeetingRoom';
 import { useGetCallById } from '@/hooks/useGetCallById';
 import Loader from '@/components/Loader';
 
-interface PageProps {
-  params: {
-    id: string;
-  };
-}
-
-export default function Page({ params: { id } }: PageProps) {
+export default function Page({ params }: { params: { id: string } }) {
   const { user, isLoaded } = useUser();
   const [isSetupComplete, setIsSetupComplete] = useState(false);
-  const { call, isCallLoading } = useGetCallById(id);
+  const { call, isCallLoading } = useGetCallById(params.id);
 
   if (!isLoaded || isCallLoading) return <Loader />;
 
