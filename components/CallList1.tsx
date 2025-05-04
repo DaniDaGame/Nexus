@@ -43,21 +43,21 @@ const CallList = ({ type }: { type: 'ended' | 'upcoming' | 'recordings'}) => {
     useEffect(() => {
         const fetchRecordings = async () => {
             try {
-            const callData = await Promise.all(callRecordings.map((meeting) => meeting.queryRecordings()))
-            
-            const recordings = callData
-            .filter(call => call.recordings.length > 0)
-            .flatMap(call => call.recordings)//[['rec1','rec2'], ['rec3']] => ['rec1','rec2','rec3'] 
-
-            setRecordings(recordings);
-            
-            }catch(error){
+                const callData = await Promise.all(callRecordings.map((meeting) => meeting.queryRecordings()))
+                
+                const recordings = callData
+                    .filter(call => call.recordings.length > 0)
+                    .flatMap(call => call.recordings)
+    
+                setRecordings(recordings);
+                
+            } catch(error) {
                 toast({ title: 'Try again later'})
             }
         }
-
+    
         if(type === 'recordings') fetchRecordings();
-    }, [type, callRecordings]);
+    }, [type, callRecordings, toast]); // Added toast to dependencies
 
     const calls = getCalls();
     const noCallsMessage = getNoCallsMessage();
