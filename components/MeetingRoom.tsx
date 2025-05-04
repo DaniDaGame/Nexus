@@ -20,7 +20,7 @@ import CustomCallControls from './CustomControls';
 type callLayoutType = 'grid' | 'speaker-left' | 'speaker-right';
 
 const MeetingRoom = () => {
-  const searchParams = useSearchParams();
+  const searchParams = useSearchParams(); 
   const isPersonalRoom = !!searchParams.get('personal')
   const [layout, setLayout] = useState<callLayoutType>('speaker-left')
   const [showPaticipants, setShowPaticipants] = useState(false);
