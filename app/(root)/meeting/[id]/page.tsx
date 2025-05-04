@@ -29,4 +29,3 @@ export default function Page({ params }: { params: { id: string } }) {
     </main>
   );
 }
- 
