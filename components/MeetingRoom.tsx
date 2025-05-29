@@ -1,7 +1,7 @@
 // components/MeetingRoom.tsx
 import {
   CallingState,
-  CallParticipantsList,
+  CallParticipantsList, // This component will be styled to hide its internal title
   PaginatedGridLayout,
   SpeakerLayout,
   useCall,
@@ -17,14 +17,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"; // Keep if layout dropdown is planned
-import { Users, MessageSquare, Send, X, LayoutDashboard } from 'lucide-react'; // Added LayoutDashboard for example
+} from "@/components/ui/dropdown-menu";
+import { Users, MessageSquare, Send, X, LayoutDashboard } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import EndCallButton from './EndCallButton';
+import EndCallButton from './EndCallButton'; // Ensure this component's button is also styled if needed
 import Loader from './Loader';
 import CustomCallControls from './CustomControls';
 import { Input } from './ui/input';
-import { Button } from './ui/button';
+import { Button } from './ui/button'; // This is the Shadcn/ui Button
 
 type CallLayoutType = 'grid' | 'speaker-left' | 'speaker-right';
 
@@ -70,10 +70,8 @@ const MeetingRoom = () => {
 
     const newSocket = io(SOCKET_SERVER_URL);
     socketRef.current = newSocket;
-    console.log(`Socket.IO: Attempting to connect to ${SOCKET_SERVER_URL}`);
-
+    
     newSocket.on('connect', () => {
-        console.log(`Socket.IO: Connected with id ${newSocket.id}`);
         newSocket.emit('join-meeting-room', meetingIdFromCall, localParticipant.userId, localParticipant.name || localParticipant.userId);
     });
 
@@ -132,7 +130,7 @@ const MeetingRoom = () => {
     setChatInput('');
   };
 
-  const CallLayoutComponent = () => { // Renamed for clarity
+  const CallLayoutComponent = () => {
     switch (layout) {
         case 'speaker-left':
              return <SpeakerLayout participantsBarPosition="left"/>;
@@ -140,7 +138,6 @@ const MeetingRoom = () => {
              return <SpeakerLayout participantsBarPosition="right"/>;
         case 'grid':
         default:
-            // Wrap PaginatedGridLayout to ensure it fills its container for centering
             return (
                 <div className="w-full h-full flex items-center justify-center">
                     <PaginatedGridLayout />
@@ -149,53 +146,42 @@ const MeetingRoom = () => {
     }
   };
 
-  // Tailwind classes for sidebar animation
-  const sidebarTransitionClasses = "transition-all duration-500 ease-in-out"; // Increased duration
+  const sidebarTransitionClasses = "transition-all duration-500 ease-in-out";
 
   return (
     <section className='relative h-screen w-full flex flex-col overflow-hidden text-white bg-dark-2'>
-        {/* Main content area including video and sidebars */}
-        <div className='flex flex-grow overflow-hidden h-[calc(100vh-80px)]'> {/* Adjusted height to ensure control bar is visible */}
-            {/* Video Area - Will take remaining space */}
+        <div className='flex flex-grow overflow-hidden h-[calc(100vh-80px)]'>
             <div className='flex-grow p-3 md:p-4 flex items-center justify-center overflow-hidden'>
-                {/* This inner div helps in centering content if PaginatedGridLayout doesn't fill it */}
-                <div className='w-full h-full max-w-[1400px]'> {/* Increased max-width for video */}
+                <div className='w-full h-full max-w-[1400px]'>
                     <CallLayoutComponent />
                 </div>
             </div>
 
-            {/* Participants Sidebar */}
             <div className={cn(
                 'h-full bg-dark-1 border-l border-gray-700 flex flex-col flex-shrink-0 overflow-hidden',
                 sidebarTransitionClasses,
-                showParticipants ? 'w-[300px] md:w-[350px] p-3 md:p-4 opacity-100' : 'w-0 p-0 opacity-0'
+                showParticipants ? 'w-[300px] md:w-[350px] p-1.5 opacity-100' : 'w-0 p-0 opacity-0'
             )}>
-                {showParticipants && ( // Render content only when shown to help with animation
+                {showParticipants && (
                     <>
-                        <div className="flex justify-between items-center mb-3 flex-shrink-0">
-                            <h2 className="text-lg font-semibold">Participants</h2>
-                            <Button variant="ghost" size="icon" onClick={() => setShowParticipants(false)} className="text-gray-400 hover:text-white">
-                                <X size={20} />
-                            </Button>
-                        </div>
-                        <div className="flex-grow overflow-y-auto">
+                        
+                        <div className="font-semibold flex-grow overflow-y-auto stream-participants-list-container"> 
                             <CallParticipantsList onClose={() => setShowParticipants(false)} />
                         </div>
                     </>
                 )}
             </div>
 
-            {/* Chat Sidebar */}
             <div className={cn(
                 'h-full bg-dark-1 border-l border-gray-700 flex flex-col flex-shrink-0 overflow-hidden',
                 sidebarTransitionClasses,
                 showChat ? 'w-[300px] md:w-[350px] p-3 md:p-4 opacity-100' : 'w-0 p-0 opacity-0'
             )}>
-                {showChat && ( // Render content only when shown to help with animation
+                {showChat && (
                     <>
                         <div className="flex justify-between items-center mb-3 flex-shrink-0">
                           <h2 className="text-lg font-semibold">Chat</h2>
-                          <Button variant="ghost" size="icon" onClick={() => setShowChat(false)} className="text-gray-400 hover:text-white">
+                          <Button variant="ghost" size="icon" onClick={() => setShowChat(false)} className="text-gray-400 hover:text-white rounded-full">
                             <X size={20} />
                           </Button>
                         </div>
@@ -235,9 +221,9 @@ const MeetingRoom = () => {
                             placeholder="Type a message..."
                             value={chatInput}
                             onChange={(e) => setChatInput(e.target.value)}
-                            className="bg-dark-3 border-gray-600 focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:ring-offset-0 text-white placeholder-gray-500 flex-grow"
+                            className="bg-dark-3 border-gray-600 focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:ring-offset-0 text-white placeholder-gray-500 flex-grow rounded-md" // Ensure input also has some rounding
                           />
-                          <Button type="submit" className="bg-blue-1 hover:bg-blue-700 p-2.5 aspect-square">
+                          <Button type="submit" className="bg-blue-1 hover:bg-blue-700 p-2.5 aspect-square rounded-md"> {/* Or rounded-full */}
                             <Send size={18} />
                           </Button>
                         </form>
@@ -246,8 +232,7 @@ const MeetingRoom = () => {
             </div>
         </div>
 
-        {/* Controls Bar */}
-        <div className='flex-shrink-0 fixed bottom-0 left-0 w-full flex items-center justify-center gap-2 md:gap-4 p-3 flex-wrap bg-dark-1/90 backdrop-blur-md border-t border-gray-700 h-[80px]'> {/* Increased height slightly for better spacing */}
+        <div className='flex-shrink-0 fixed bottom-0 left-0 w-full flex items-center justify-center gap-2 md:gap-4 p-3 flex-wrap bg-dark-1/90 backdrop-blur-md border-t border-gray-700 h-[80px]'>
             <CustomCallControls onLeave = {() => {
                 if (socketRef.current && meetingIdFromCall && localParticipant?.userId) {
                     socketRef.current.emit('leave-meeting-room', meetingIdFromCall, localParticipant.userId, localParticipant.name);
@@ -255,26 +240,13 @@ const MeetingRoom = () => {
                 router.push('/');
             }}/>
             
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                     <Button variant="outline" className='p-2.5 bg-dark-3 hover:bg-gray-700 border-gray-600 text-white' title="Layout">
-                        <LayoutDashboard size={20} />
-                     </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-dark-1 text-white border-gray-700">
-                    <DropdownMenuLabel>Layout</DropdownMenuLabel>
-                    <DropdownMenuSeparator className="bg-gray-700"/>
-                    <DropdownMenuItem onClick={() => setLayout('grid')} className="focus:bg-gray-700 focus:text-white">Grid</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setLayout('speaker-left')} className="focus:bg-gray-700 focus:text-white">Speaker Left</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setLayout('speaker-right')} className="focus:bg-gray-700 focus:text-white">Speaker Right</DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
+            
 
             <Button 
                 variant="outline"
                 onClick={() => setShowParticipants((prev) => !prev)}
                 className={cn(
-                    'p-2.5 transition-colors border-gray-600',
+                    'p-2.5 transition-colors border-none rounded-full', // Added rounded-full
                     showParticipants ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-dark-3 hover:bg-gray-700 text-gray-300 hover:text-white'
                 )}
                 title="Participants"
@@ -286,7 +258,7 @@ const MeetingRoom = () => {
                 variant="outline"
                 onClick={() => setShowChat((prev) => !prev)}
                 className={cn(
-                    'p-2.5 transition-colors border-gray-600',
+                    'p-2.5 transition-colors border-none rounded-full', // Added rounded-full
                     showChat ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-dark-3 hover:bg-gray-700 text-gray-300 hover:text-white'
                 )}
                 title="Chat"
@@ -294,7 +266,7 @@ const MeetingRoom = () => {
               <MessageSquare size={20}/>
             </Button>
 
-            {!isPersonalRoom && <EndCallButton />}
+            {!isPersonalRoom && <EndCallButton />} {/* Ensure EndCallButton is also styled with rounded-full if it's a Button */}
         </div>
     </section>
   )
