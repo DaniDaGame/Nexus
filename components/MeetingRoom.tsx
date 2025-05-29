@@ -1,10 +1,8 @@
-// components/MeetingRoom.tsx
 import {
-  CallControls, // Keep if CustomCallControls doesn't replace it entirely
   CallingState,
   CallParticipantsList,
   PaginatedGridLayout,
-  SpeakerLayout, // Keep if you plan to use other layouts
+  SpeakerLayout,
   useCall,
   useCallStateHooks,
 } from '@stream-io/video-react-sdk';
@@ -18,14 +16,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu" // Keep if layout dropdown is planned
-import { Users, MessageSquare, Send, X } from 'lucide-react'; // Added MessageSquare, Send, X
+} from "@/components/ui/dropdown-menu";
+import { Users, MessageSquare, Send, X, LayoutDashboard } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import EndCallButton from './EndCallButton';
 import Loader from './Loader';
-import CustomCallControls from './CustomControls'; // Your existing custom controls
+import CustomCallControls from './CustomControls';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
+
 
 type CallLayoutType = 'grid' | 'speaker-left' | 'speaker-right';
 
@@ -173,8 +172,9 @@ const MeetingRoom = () => {
             return <PaginatedGridLayout />;
     }
   };
-
+  const sidebarTransitionClasses = "transition-all duration-300 ease-in-out"
   return (
+    
     <section className='relative h-screen w-full overflow-hidden text-white bg-dark-2'>
         <div className='flex flex-1 overflow-hidden h-[calc(100vh-80px)]'> {/* Adjusted height for control bar */}
             {/* Main Video Area - Takes remaining space */}
@@ -200,6 +200,11 @@ const MeetingRoom = () => {
             )}
 
             {/* Chat Sidebar */}
+            <div className={cn(
+            'h-full bg-dark-1 border-l border-gray-700 flex flex-col flex-shrink-0 overflow-hidden', // קלאסים בסיסיים
+            sidebarTransitionClasses, // "transition-all duration-300 ease-in-out"
+            showChat ? 'w-[300px] md:w-[350px] p-3 md:p-4 opacity-100' : 'w-0 p-0 opacity-0 pointer-events-none' // קלאסים מותנים
+            )}>
             {showChat && (
               <div className="w-[300px] md:w-[350px] h-full bg-dark-1 border-l border-gray-700 flex flex-col p-4 flex-shrink-0">
                 <div className="flex justify-between items-center mb-3">
@@ -252,6 +257,7 @@ const MeetingRoom = () => {
                 </form>
               </div>
             )}
+            </div>
         </div>
 
         {/* Controls Bar - Original structure */}
