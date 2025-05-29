@@ -196,23 +196,31 @@ const MeetingRoom = () => {
                 )}
             </div>
 
-            {/* Chat Sidebar */}
-            <div className={cn(
-    'h-full bg-dark-1 border-l border-gray-700 flex flex-col flex-shrink-0 overflow-hidden',
-    sidebarTransitionClasses,
-    showChat ? 'w-[300px] md:w-[350px] p-3 md:p-4 opacity-100' : 'w-0 p-0 opacity-0 pointer-events-none'
-)}>
-    {showChat && (
-        <>
-            {/* ילד 1: כותרת ו-X */}
-            <div className="flex justify-between items-center mb-3 flex-shrink-0 bg-red-500/30"> {/* רקע אדום שקוף */}
-              <h2 className="text-lg font-semibold">Chat</h2>
-              <Button /* ... */ > <X size={24} /> </Button>
-            </div>
+                        {/* Chat Sidebar */}
+                        <div className={cn(
+                'h-full bg-dark-1 border-l border-gray-700 flex flex-col flex-shrink-0 overflow-hidden', // הקונטיינר הראשי הוא flex flex-col
+                sidebarTransitionClasses,
+                showChat ? 'w-[300px] md:w-[350px] p-3 md:p-4 opacity-100' : 'w-0 p-0 opacity-0 pointer-events-none'
+            )}>
+                {showChat && (
+                    <>
+                        {/* ילד 1: כותרת ו-X - ללא שינוי מיוחד נדרש כאן */}
+                        <div className="flex justify-between items-center mb-3 flex-shrink-0"> {/* רקע אדום הוסר */}
+                          <h2 className="text-lg font-semibold">Chat</h2>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => setShowChat(false)} 
+                            className="text-gray-400 hover:text-white hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                            aria-label="Close chat panel"
+                          >
+                            <X size={24} />
+                          </Button>
+                        </div>
 
-            {/* ילד 2: רשימת הודעות */}
-            <div ref={chatContainerRef} className="flex-grow overflow-y-auto mb-3 space-y-2.5 pr-1 min-h-0 bg-green-500/30">
-                          {/* הודעות הצ'אט מרונדרות כאן */}
+                        {/* ילד 2: רשימת הודעות - זה האלמנט שצריך למלא את השטח */}
+                        {/* השתמש ב-flex-1 כאן במקום flex-grow, זה יותר מתאים למילוי שטח שנותר */}
+                        <div ref={chatContainerRef} className="flex-1 overflow-y-auto mb-3 space-y-2.5 pr-1 min-h-0"> {/* רקע ירוק הוסר, שונה ל-flex-1 */}
                           {chatMessages.map((msg) => (
                             <div
                               key={msg.id}
@@ -242,10 +250,20 @@ const MeetingRoom = () => {
                             </div>
                           ))}
                         </div>
-                        <form onSubmit={sendChatMessage} className="flex gap-2 mt-auto pt-2 border-t border-gray-700 flex-shrink-0 bg-purple-500/30"> {/* רקע סגול שקוף */}
-              <Input /* ... */ />
-              <Button /* ... */ > <Send size={18} /> </Button>
-            </form>
+
+                        {/* ילד 3: טופס - הסרנו mt-auto כי הוא ימוקם באופן טבעי אחרי ה-flex-1 */}
+                        <form onSubmit={sendChatMessage} className="flex gap-2 pt-2 border-t border-gray-700 flex-shrink-0"> {/* רקע סגול הוסר */}
+                          <Input
+                            type="text"
+                            placeholder="Type a message..."
+                            value={chatInput}
+                            onChange={(e) => setChatInput(e.target.value)}
+                            className="bg-dark-3 border-gray-600 focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:ring-offset-0 text-white placeholder-gray-500 flex-grow rounded-md"
+                          />
+                          <Button type="submit" className="bg-blue-1 hover:bg-blue-700 p-2.5 aspect-square rounded-md">
+                            <Send size={18} />
+                          </Button>
+                        </form>
                     </>
                 )}
             </div>
