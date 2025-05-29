@@ -22,7 +22,7 @@ import { Users, MessageSquare, Send, X, LayoutDashboard } from 'lucide-react'; /
 import { useRouter, useSearchParams } from 'next/navigation';
 import EndCallButton from './EndCallButton';
 import Loader from './Loader';
-import CustomCallControls from './CustomCallControls';
+import CustomCallControls from './CustomControls';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 
