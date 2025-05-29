@@ -178,7 +178,7 @@ const MeetingRoom = () => {
     <section className='relative h-screen w-full overflow-hidden text-white bg-dark-2'>
         <div className='flex flex-1 overflow-hidden h-[calc(100vh-80px)]'> {/* Adjusted height for control bar */}
             {/* Main Video Area - Takes remaining space */}
-            <div className='flex-grow p-4 transition-all duration-300 ease-in-out flex items-center justify-center'>
+            <div className='flex-1 p-3 md:p-4 flex items-center justify-center overflow-hidden min-w-0'>
                 <div className='w-full h-full max-w-[1200px]'> {/* Max width for video content */}
                     <CallLayout />
                 </div>
