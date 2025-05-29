@@ -1,8 +1,10 @@
+// components/MeetingRoom.tsx
 import {
+  CallControls, // Keep if CustomCallControls doesn't replace it entirely
   CallingState,
   CallParticipantsList,
   PaginatedGridLayout,
-  SpeakerLayout,
+  SpeakerLayout, // Keep if you plan to use other layouts
   useCall,
   useCallStateHooks,
 } from '@stream-io/video-react-sdk';
@@ -16,15 +18,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu" // Keep if layout dropdown is planned
 import { Users, MessageSquare, Send, X, LayoutDashboard } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import EndCallButton from './EndCallButton';
 import Loader from './Loader';
-import CustomCallControls from './CustomControls';
+import CustomCallControls from './CustomControls'; // Your existing custom controls
 import { Input } from './ui/input';
 import { Button } from './ui/button';
-
 
 type CallLayoutType = 'grid' | 'speaker-left' | 'speaker-right';
 
@@ -161,107 +162,132 @@ const MeetingRoom = () => {
   };
 
   // Original CallLayout function
-  const CallLayout = () => {
+const CallLayoutComponent = () => { // <--- שם הפונקציה המעודכן
     switch (layout) {
-        // case 'speaker-left': // Example for future
-        //     return <SpeakerLayout participantsBarPosition="left"/>;
-        // case 'speaker-right': // Example for future
-        //     return <SpeakerLayout participantsBarPosition="right"/>;
+        case 'speaker-left':
+             return <SpeakerLayout participantsBarPosition="left"/>;
+        case 'speaker-right':
+             return <SpeakerLayout participantsBarPosition="right"/>;
         case 'grid':
         default:
-            return <PaginatedGridLayout />;
+            // עטיפה זו עוזרת למרכז את הרשת אם היא לא ממלאה את כל האזור
+            return (
+                <div className="w-full h-full flex items-center justify-center">
+                    <PaginatedGridLayout />
+                </div>
+            );
     }
   };
-  const sidebarTransitionClasses = "transition-all duration-300 ease-in-out"
-  return (
-    
-    <section className='relative h-screen w-full overflow-hidden text-white bg-dark-2'>
-        <div className='flex flex-1 overflow-hidden h-[calc(100vh-80px)]'> {/* Adjusted height for control bar */}
-            {/* Main Video Area - Takes remaining space */}
+const sidebarTransitionClasses = "transition-all duration-300 ease-in-out";
+  
+
+return (
+    <section className='relative h-screen w-full flex flex-col overflow-hidden text-white bg-dark-2'>
+        {/* אזור התוכן הראשי (וידאו וסיידברים) */}
+        <div className='flex flex-1 overflow-hidden'> {/* גובהו ייקבע על ידי flex-1 בתוך section */}
+            {/* אזור הווידאו - יתפוס את השטח הנותר */}
             <div className='flex-1 p-3 md:p-4 flex items-center justify-center overflow-hidden min-w-0'>
-                <div className='w-full h-full max-w-[1200px]'> {/* Max width for video content */}
-                    <CallLayout />
+                <div className='w-full h-full max-w-[1400px]'>
+                    <CallLayoutComponent />
                 </div>
             </div>
 
             {/* Participants Sidebar */}
-            {showParticipants && (
-                <div className="w-[300px] md:w-[350px] h-full bg-dark-1 border-l border-gray-700 p-4 flex flex-col flex-shrink-0">
-                    <div className="flex justify-between items-center mb-3">
-                        <h2 className="text-lg font-semibold">Participants</h2>
-                        <Button variant="ghost" size="icon" onClick={() => setShowParticipants(false)} className="text-gray-400 hover:text-white">
-                            <X size={20} />
-                        </Button>
+            <div className={cn(
+                'h-full bg-dark-1 border-l border-gray-700 flex flex-col flex-shrink-0 overflow-hidden',
+                sidebarTransitionClasses,
+                showParticipants ? 'w-[300px] md:w-[350px] p-3 md:p-4 opacity-100' : 'w-0 p-0 opacity-0 pointer-events-none'
+            )}>
+                {showParticipants && (
+                    <div className="flex flex-col h-full"> {/* עטיפה פנימית */}
+                        <div className="flex justify-between items-center mb-3 flex-shrink-0">
+                            <h2 className="text-lg font-semibold">Participants</h2>
+                            <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                onClick={() => setShowParticipants(false)} 
+                                className="text-gray-400 hover:text-white hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                                aria-label="Close participants panel"
+                            >
+                                <X size={24} />
+                            </Button>
+                        </div>
+                        <div className="flex-1 min-h-0 overflow-y-auto stream-participants-list-container"> {/* שונה ל-flex-1 ו-min-h-0 */}
+                            <CallParticipantsList onClose={() => setShowParticipants(false)} />
+                        </div>
                     </div>
-                    <div className="flex-grow overflow-y-auto">
-                        <CallParticipantsList onClose={() => setShowParticipants(false)} />
-                    </div>
-                </div>
-            )}
+                )}
+            </div>
 
             {/* Chat Sidebar */}
             <div className={cn(
-            'h-full bg-dark-1 border-l border-gray-700 flex flex-col flex-shrink-0 overflow-hidden', // קלאסים בסיסיים
-            sidebarTransitionClasses, // "transition-all duration-300 ease-in-out"
-            showChat ? 'w-[300px] md:w-[350px] p-3 md:p-4 opacity-100' : 'w-0 p-0 opacity-0 pointer-events-none' // קלאסים מותנים
+                'h-full bg-dark-1 border-l border-gray-700 flex flex-col flex-shrink-0 overflow-hidden',
+                sidebarTransitionClasses,
+                showChat ? 'w-[300px] md:w-[350px] p-3 md:p-4 opacity-100' : 'w-0 p-0 opacity-0 pointer-events-none'
             )}>
-            {showChat && (
-              <div className="w-[300px] md:w-[350px] h-full bg-dark-1 border-l border-gray-700 flex flex-col p-4 flex-shrink-0">
-                <div className="flex justify-between items-center mb-3">
-                  <h2 className="text-lg font-semibold">Chat</h2>
-                  <Button variant="ghost" size="icon" onClick={() => setShowChat(false)} className="text-gray-400 hover:text-white">
-                    <X size={20} />
-                  </Button>
-                </div>
-                <div ref={chatContainerRef} className="flex-grow overflow-y-auto mb-3 space-y-2.5 pr-1">
-                  {chatMessages.map((msg) => (
-                    <div
-                      key={msg.id}
-                      className={`flex w-full ${msg.type === 'notification' ? 'justify-center' : (msg.isLocal ? 'justify-end' : 'justify-start')}`}
-                    >
-                      {msg.type === 'notification' ? (
-                        <p className="text-xs text-gray-500 italic px-2 py-1 bg-dark-3 rounded-md my-1 text-center">
-                          {msg.text}
-                        </p>
-                      ) : (
-                        <div
-                          className={`p-2.5 rounded-xl max-w-[85%] shadow ${
-                            msg.isLocal
-                              ? 'bg-blue-600 text-white rounded-br-none'
-                              : 'bg-dark-3 text-gray-200 rounded-bl-none'
-                          }`}
-                        >
-                          {!msg.isLocal && (
-                            <p className="text-xs text-sky-400 mb-0.5 font-medium">{msg.senderName}</p>
-                          )}
-                          <p className="text-sm break-words whitespace-pre-wrap">{msg.text}</p>
-                          <p className={`text-[10px] mt-1.5 ${msg.isLocal ? 'text-blue-200' : 'text-gray-400'} text-right opacity-80`}>
-                            {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </p>
+                {showChat && (
+                    <div className="flex flex-col h-full"> {/* עטיפה פנימית */}
+                        <div className="flex justify-between items-center mb-3 flex-shrink-0">
+                          <h2 className="text-lg font-semibold">Chat</h2>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => setShowChat(false)} 
+                            className="text-gray-400 hover:text-white hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                            aria-label="Close chat panel"
+                          >
+                            <X size={24} />
+                          </Button>
                         </div>
-                      )}
+                        <div ref={chatContainerRef} className="flex-1 min-h-0 overflow-y-auto mb-3 space-y-2.5 pr-1"> {/* שונה ל-flex-1 ו-min-h-0 */}
+                          {chatMessages.map((msg) => (
+                            <div
+                              key={msg.id}
+                              className={`flex w-full ${msg.type === 'notification' ? 'justify-center' : (msg.isLocal ? 'justify-end' : 'justify-start')}`}
+                            >
+                              {msg.type === 'notification' ? (
+                                <p className="text-xs text-gray-500 italic px-2 py-1 bg-dark-3 rounded-md my-1 text-center">
+                                  {msg.text}
+                                </p>
+                              ) : (
+                                <div
+                                  className={`p-2.5 rounded-xl max-w-[85%] shadow ${
+                                    msg.isLocal
+                                      ? 'bg-blue-600 text-white rounded-br-none'
+                                      : 'bg-dark-3 text-gray-200 rounded-bl-none'
+                                  }`}
+                                >
+                                  {!msg.isLocal && (
+                                    <p className="text-xs text-sky-400 mb-0.5 font-medium">{msg.senderName}</p>
+                                  )}
+                                  <p className="text-sm break-words whitespace-pre-wrap">{msg.text}</p>
+                                  <p className={`text-[10px] mt-1.5 ${msg.isLocal ? 'text-blue-200' : 'text-gray-400'} text-right opacity-80`}>
+                                    {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        <form onSubmit={sendChatMessage} className="flex gap-2 pt-2 border-t border-gray-700 flex-shrink-0">
+                          <Input
+                            type="text"
+                            placeholder="Type a message..."
+                            value={chatInput}
+                            onChange={(e) => setChatInput(e.target.value)}
+                            className="bg-dark-3 border-gray-600 focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:ring-offset-0 text-white placeholder-gray-500 flex-grow rounded-md"
+                          />
+                          <Button type="submit" className="bg-blue-1 hover:bg-blue-700 p-2.5 aspect-square rounded-md">
+                            <Send size={18} />
+                          </Button>
+                        </form>
                     </div>
-                  ))}
-                </div>
-                <form onSubmit={sendChatMessage} className="flex gap-2 mt-auto pt-2 border-t border-gray-700">
-                  <Input
-                    type="text"
-                    placeholder="Type a message..."
-                    value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
-                    className="bg-dark-3 border-gray-600 focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:ring-offset-0 text-white placeholder-gray-500 flex-grow"
-                  />
-                  <Button type="submit" className="bg-blue-1 hover:bg-blue-700 p-2.5 aspect-square">
-                    <Send size={18} />
-                  </Button>
-                </form>
-              </div>
-            )}
+                )}
             </div>
         </div>
 
-        {/* Controls Bar - Original structure */}
-        <div className='fixed bottom-0 left-0 w-full flex items-center justify-center gap-3 md:gap-5 p-3 flex-wrap bg-dark-1/80 backdrop-blur-sm border-t border-gray-700 h-[70px]'>
+        {/* Controls Bar - ילד ישיר של ה-section, עם גובה קבוע */}
+        <div className='flex-shrink-0 w-full flex items-center justify-center gap-2 md:gap-4 p-3 flex-wrap bg-dark-1/90 backdrop-blur-md border-t border-gray-700 h-[80px]'>
             <CustomCallControls onLeave = {() => {
                 if (socketRef.current && meetingIdFromCall && localParticipant?.userId) {
                     socketRef.current.emit('leave-meeting-room', meetingIdFromCall, localParticipant.userId, localParticipant.name);
@@ -269,50 +295,51 @@ const MeetingRoom = () => {
                 router.push('/');
             }}/>
             
-            {/* Your original DropdownMenu for layouts - keep if planned */}
-            {/* <DropdownMenu>
-                <div className='flex items-center'>
-                    <DropdownMenuTrigger asChild>
-                         <button className='p-2.5 rounded-full cursor-pointer bg-dark-3 hover:bg-gray-700' title="Layout">
-                            <LayoutDashboard size={20} className="text-white" />
-                         </button>
-                    </DropdownMenuTrigger>
-                </div>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                     <Button variant="outline" className='p-2.5 bg-dark-3 hover:bg-gray-700 border-gray-600 text-white rounded-full' title="Layout">
+                        <LayoutDashboard size={20} />
+                     </Button>
+                </DropdownMenuTrigger>
                 <DropdownMenuContent className="bg-dark-1 text-white border-gray-700">
-                    <DropdownMenuLabel>Layout</DropdownMenuLabel>
+                    <DropdownMenuLabel>Layout Options</DropdownMenuLabel>
                     <DropdownMenuSeparator className="bg-gray-700"/>
-                    <DropdownMenuItem onClick={() => setLayout('grid')} className="hover:!bg-gray-700">Grid</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setLayout('speaker-left')} className="hover:!bg-gray-700">Speaker Left</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setLayout('speaker-right')} className="hover:!bg-gray-700">Speaker Right</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setLayout('grid')} className="focus:bg-gray-700 focus:text-white">Grid</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setLayout('speaker-left')} className="focus:bg-gray-700 focus:text-white">Speaker Left</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setLayout('speaker-right')} className="focus:bg-gray-700 focus:text-white">Speaker Right</DropdownMenuItem>
                 </DropdownMenuContent>
-            </DropdownMenu> */}
+            </DropdownMenu>
 
-            <button 
+            <Button 
+                variant="outline"
                 onClick={() => setShowParticipants((prev) => !prev)}
                 className={cn(
-                    'p-2.5 rounded-full cursor-pointer transition-colors',
-                    showParticipants ? 'bg-blue-600 text-white' : 'bg-dark-3 hover:bg-gray-700 text-gray-300 hover:text-white'
+                    'p-2.5 transition-colors border-none rounded-full',
+                    showParticipants ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-dark-3 hover:bg-gray-700 text-gray-300 hover:text-white'
                 )}
                 title="Participants"
             >
               <Users size={20}/>
-            </button>
+            </Button>
 
-            <button 
+            <Button 
+                variant="outline"
                 onClick={() => setShowChat((prev) => !prev)}
                 className={cn(
-                    'p-2.5 rounded-full cursor-pointer transition-colors',
-                    showChat ? 'bg-blue-600 text-white' : 'bg-dark-3 hover:bg-gray-700 text-gray-300 hover:text-white'
+                    'p-2.5 transition-colors border-none rounded-full',
+                    showChat ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-dark-3 hover:bg-gray-700 text-gray-300 hover:text-white'
                 )}
                 title="Chat"
             >
               <MessageSquare size={20}/>
-            </button>
+            </Button>
 
             {!isPersonalRoom && <EndCallButton />}
         </div>
     </section>
-  )
+  );
 }
 
+
 export default MeetingRoom;
+
