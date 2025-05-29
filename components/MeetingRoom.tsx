@@ -157,15 +157,27 @@ const MeetingRoom = () => {
                 </div>
             </div>
 
-            <div className={cn(
+                        {/* Participants Sidebar */}
+                        <div className={cn(
                 'h-full bg-dark-1 border-l border-gray-700 flex flex-col flex-shrink-0 overflow-hidden',
                 sidebarTransitionClasses,
-                showParticipants ? 'w-[300px] md:w-[350px] p-1.5 opacity-100' : 'w-0 p-0 opacity-0'
+                showParticipants ? 'w-[300px] md:w-[350px] p-3 md:p-4 opacity-100' : 'w-0 p-0 opacity-0' // החזר את ה-padding המקורי
             )}>
                 {showParticipants && (
                     <>
-                        
-                        <div className="font-semibold flex-grow overflow-y-auto stream-participants-list-container"> 
+                        <div className="flex justify-between items-center mb-3 flex-shrink-0"> {/* החזר את ה-DIV הזה */}
+                            <h2 className="text-lg font-semibold">Participants</h2>
+                            <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                onClick={() => setShowParticipants(false)} 
+                                className="text-gray-400 hover:text-white hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                                aria-label="Close participants panel"
+                            >
+                                <X size={24} />
+                            </Button>
+                        </div>
+                        <div className="flex-grow overflow-y-auto stream-participants-list-container"> {/* הסר font-semibold מכאן אם לא נחוץ */}
                             <CallParticipantsList onClose={() => setShowParticipants(false)} />
                         </div>
                     </>
