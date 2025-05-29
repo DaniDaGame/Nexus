@@ -17,8 +17,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"; // Keep if layout dropdown is planned
-import { Users, MessageSquare, Send, X, LayoutDashboard } from 'lucide-react'; // Added LayoutDashboard for example
+} from "@/components/ui/dropdown-menu";
+import { Users, MessageSquare, Send, X, LayoutDashboard } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import EndCallButton from './EndCallButton';
 import Loader from './Loader';
@@ -53,7 +53,7 @@ const MeetingRoom = () => {
 
   const [layout, setLayout] = useState<CallLayoutType>('grid');
   const [showParticipants, setShowParticipants] = useState(false);
-  const [showChat, setShowChat] = useState(false);
+  const [showChat, setShowChat] = useState(false); // נתחיל עם הצ'אט סגור
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState('');
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -66,14 +66,17 @@ const MeetingRoom = () => {
   }, [call?.id]);
 
   useEffect(() => {
-    if (!meetingIdFromCall || !localParticipant?.userId) return;
+    if (!meetingIdFromCall || !localParticipant?.userId) {
+      // console.log("MeetingRoom: Waiting for meetingId or localParticipant to connect chat socket.");
+      return;
+    }
 
     const newSocket = io(SOCKET_SERVER_URL);
     socketRef.current = newSocket;
-    console.log(`Socket.IO: Attempting to connect to ${SOCKET_SERVER_URL}`);
+    // console.log(`Socket.IO: Attempting to connect to ${SOCKET_SERVER_URL}`);
 
     newSocket.on('connect', () => {
-        console.log(`Socket.IO: Connected with id ${newSocket.id}`);
+        // console.log(`Socket.IO: Connected with id ${newSocket.id}`);
         newSocket.emit('join-meeting-room', meetingIdFromCall, localParticipant.userId, localParticipant.name || localParticipant.userId);
     });
 
@@ -101,6 +104,7 @@ const MeetingRoom = () => {
 
     return () => {
       if (newSocket && meetingIdFromCall && localParticipant?.userId) {
+        // console.log(`Socket.IO: Emitting leave-meeting-room for ${meetingIdFromCall} and disconnecting.`);
         newSocket.emit('leave-meeting-room', meetingIdFromCall, localParticipant.userId, localParticipant.name || localParticipant.userId);
         newSocket.disconnect();
       }
@@ -132,7 +136,7 @@ const MeetingRoom = () => {
     setChatInput('');
   };
 
-  const CallLayoutComponent = () => { // Renamed for clarity
+  const CallLayoutComponent = () => {
     switch (layout) {
         case 'speaker-left':
              return <SpeakerLayout participantsBarPosition="left"/>;
@@ -140,8 +144,8 @@ const MeetingRoom = () => {
              return <SpeakerLayout participantsBarPosition="right"/>;
         case 'grid':
         default:
-            // Wrap PaginatedGridLayout to ensure it fills its container for centering
             return (
+                // עטיפה זו עוזרת למרכז את הרשת אם היא לא ממלאה את כל האזור
                 <div className="w-full h-full flex items-center justify-center">
                     <PaginatedGridLayout />
                 </div>
@@ -149,17 +153,15 @@ const MeetingRoom = () => {
     }
   };
 
-  // Tailwind classes for sidebar animation
-  const sidebarTransitionClasses = "transition-all duration-500 ease-in-out"; // Increased duration
+  const sidebarTransitionClasses = "transition-all duration-300 ease-in-out"; // משך אנימציה קצר יותר
 
   return (
     <section className='relative h-screen w-full flex flex-col overflow-hidden text-white bg-dark-2'>
-        {/* Main content area including video and sidebars */}
-        <div className='flex flex-grow overflow-hidden h-[calc(100vh-80px)]'> {/* Adjusted height to ensure control bar is visible */}
-            {/* Video Area - Will take remaining space */}
-            <div className='flex-grow p-3 md:p-4 flex items-center justify-center overflow-hidden'>
-                {/* This inner div helps in centering content if PaginatedGridLayout doesn't fill it */}
-                <div className='w-full h-full max-w-[1400px]'> {/* Increased max-width for video */}
+        {/* אזור התוכן הראשי (וידאו וסיידברים) */}
+        <div className='flex flex-1 overflow-hidden h-[calc(100vh-80px)]'> {/* שונה ל-flex-1 */}
+            {/* אזור הווידאו - יתפוס את השטח הנותר */}
+            <div className='flex-1 p-3 md:p-4 flex items-center justify-center overflow-hidden min-w-0'> {/* שונה ל-flex-1 והוסף min-w-0 */}
+                <div className='w-full h-full max-w-[1400px]'> {/* אפשר לשחק עם max-width */}
                     <CallLayoutComponent />
                 </div>
             </div>
@@ -168,17 +170,24 @@ const MeetingRoom = () => {
             <div className={cn(
                 'h-full bg-dark-1 border-l border-gray-700 flex flex-col flex-shrink-0 overflow-hidden',
                 sidebarTransitionClasses,
-                showParticipants ? 'w-[300px] md:w-[350px] p-3 md:p-4 opacity-100' : 'w-0 p-0 opacity-0'
+                showParticipants ? 'w-[300px] md:w-[350px] p-3 md:p-4 opacity-100' : 'w-0 p-0 opacity-0 pointer-events-none'
             )}>
-                {showParticipants && ( // Render content only when shown to help with animation
+                {showParticipants && (
                     <>
                         <div className="flex justify-between items-center mb-3 flex-shrink-0">
                             <h2 className="text-lg font-semibold">Participants</h2>
-                            <Button variant="ghost" size="icon" onClick={() => setShowParticipants(false)} className="text-gray-400 hover:text-white">
-                                <X size={20} />
+                            <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                onClick={() => setShowParticipants(false)} 
+                                className="text-gray-400 hover:text-white hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                                aria-label="Close participants panel"
+                            >
+                                <X size={24} />
                             </Button>
                         </div>
-                        <div className="flex-grow overflow-y-auto">
+                        {/* קונטיינר לרשימת המשתתפים כדי להחיל עליו CSS להסתרת הכותרת הפנימית */}
+                        <div className="flex-grow overflow-y-auto stream-participants-list-container min-h-0">
                             <CallParticipantsList onClose={() => setShowParticipants(false)} />
                         </div>
                     </>
@@ -189,17 +198,23 @@ const MeetingRoom = () => {
             <div className={cn(
                 'h-full bg-dark-1 border-l border-gray-700 flex flex-col flex-shrink-0 overflow-hidden',
                 sidebarTransitionClasses,
-                showChat ? 'w-[300px] md:w-[350px] p-3 md:p-4 opacity-100' : 'w-0 p-0 opacity-0'
+                showChat ? 'w-[300px] md:w-[350px] p-3 md:p-4 opacity-100' : 'w-0 p-0 opacity-0 pointer-events-none'
             )}>
-                {showChat && ( // Render content only when shown to help with animation
+                {showChat && (
                     <>
                         <div className="flex justify-between items-center mb-3 flex-shrink-0">
                           <h2 className="text-lg font-semibold">Chat</h2>
-                          <Button variant="ghost" size="icon" onClick={() => setShowChat(false)} className="text-gray-400 hover:text-white">
-                            <X size={20} />
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => setShowChat(false)} 
+                            className="text-gray-400 hover:text-white hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                            aria-label="Close chat panel"
+                          >
+                            <X size={24} />
                           </Button>
                         </div>
-                        <div ref={chatContainerRef} className="flex-grow overflow-y-auto mb-3 space-y-2.5 pr-1">
+                        <div ref={chatContainerRef} className="flex-1 h-0 overflow-y-auto mb-3 space-y-2.5 pr-1">
                           {chatMessages.map((msg) => (
                             <div
                               key={msg.id}
@@ -229,15 +244,15 @@ const MeetingRoom = () => {
                             </div>
                           ))}
                         </div>
-                        <form onSubmit={sendChatMessage} className="flex gap-2 mt-auto pt-2 border-t border-gray-700 flex-shrink-0">
+                        <form onSubmit={sendChatMessage} className="flex gap-2 pt-2 border-t border-gray-700 flex-shrink-0">
                           <Input
                             type="text"
                             placeholder="Type a message..."
                             value={chatInput}
                             onChange={(e) => setChatInput(e.target.value)}
-                            className="bg-dark-3 border-gray-600 focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:ring-offset-0 text-white placeholder-gray-500 flex-grow"
+                            className="bg-dark-3 border-gray-600 focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:ring-offset-0 text-white placeholder-gray-500 flex-grow rounded-md"
                           />
-                          <Button type="submit" className="bg-blue-1 hover:bg-blue-700 p-2.5 aspect-square">
+                          <Button type="submit" className="bg-blue-1 hover:bg-blue-700 p-2.5 aspect-square rounded-md">
                             <Send size={18} />
                           </Button>
                         </form>
@@ -247,7 +262,7 @@ const MeetingRoom = () => {
         </div>
 
         {/* Controls Bar */}
-        <div className='flex-shrink-0 fixed bottom-0 left-0 w-full flex items-center justify-center gap-2 md:gap-4 p-3 flex-wrap bg-dark-1/90 backdrop-blur-md border-t border-gray-700 h-[80px]'> {/* Increased height slightly for better spacing */}
+        <div className='flex-shrink-0 fixed bottom-0 left-0 w-full flex items-center justify-center gap-2 md:gap-4 p-3 flex-wrap bg-dark-1/90 backdrop-blur-md border-t border-gray-700 h-[80px]'>
             <CustomCallControls onLeave = {() => {
                 if (socketRef.current && meetingIdFromCall && localParticipant?.userId) {
                     socketRef.current.emit('leave-meeting-room', meetingIdFromCall, localParticipant.userId, localParticipant.name);
@@ -257,12 +272,12 @@ const MeetingRoom = () => {
             
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                     <Button variant="outline" className='p-2.5 bg-dark-3 hover:bg-gray-700 border-gray-600 text-white' title="Layout">
+                     <Button variant="outline" className='p-2.5 bg-dark-3 hover:bg-gray-700 border-gray-600 text-white rounded-full' title="Layout">
                         <LayoutDashboard size={20} />
                      </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="bg-dark-1 text-white border-gray-700">
-                    <DropdownMenuLabel>Layout</DropdownMenuLabel>
+                    <DropdownMenuLabel>Layout Options</DropdownMenuLabel>
                     <DropdownMenuSeparator className="bg-gray-700"/>
                     <DropdownMenuItem onClick={() => setLayout('grid')} className="focus:bg-gray-700 focus:text-white">Grid</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setLayout('speaker-left')} className="focus:bg-gray-700 focus:text-white">Speaker Left</DropdownMenuItem>
@@ -274,7 +289,7 @@ const MeetingRoom = () => {
                 variant="outline"
                 onClick={() => setShowParticipants((prev) => !prev)}
                 className={cn(
-                    'p-2.5 transition-colors border-gray-600',
+                    'p-2.5 transition-colors border-none rounded-full', // הוספתי border-none
                     showParticipants ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-dark-3 hover:bg-gray-700 text-gray-300 hover:text-white'
                 )}
                 title="Participants"
@@ -284,9 +299,12 @@ const MeetingRoom = () => {
 
             <Button 
                 variant="outline"
-                onClick={() => setShowChat((prev) => !prev)}
+                onClick={() => {
+                    // console.log("Toggling chat, current showChat:", showChat); // אפשר להסיר אחרי שהכל עובד
+                    setShowChat((prev) => !prev);
+                }}
                 className={cn(
-                    'p-2.5 transition-colors border-gray-600',
+                    'p-2.5 transition-colors border-none rounded-full', // הוספתי border-none
                     showChat ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-dark-3 hover:bg-gray-700 text-gray-300 hover:text-white'
                 )}
                 title="Chat"
