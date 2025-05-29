@@ -7,7 +7,24 @@
   padding: 0;
   box-sizing: border-box;
 }
+/* In app/globals.css */
+.str-video__participant-list .str-video__participant-list-header .str-video__participant-list-header__title{
+    -str-video__font-size-xxs: 16.5px;
+    --str-video__font-size-xs: 16.5px;
+    --str-video__font-size-sm: 16.5px;
+    --str-video__font-size-md: 16.5px;
+    --str-video__font-size-lg: 16.5px;
+    --str-video__font-size-xl: 16.5px;
+    --str-video__font-size-xxl: 16.5px;
+}
 
+.str-video__call-controls__button {
+  background-color: #1c1f2e !important;
+}
+
+.stream-participants-list-container .str-video__participants-panel-header {
+  display: none !important;
+}
 /* ======== stream css overrides ======== */
 .str-video__call-stats {
   max-width: 500px;
