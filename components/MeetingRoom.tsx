@@ -196,23 +196,13 @@ return (
             <div className={cn(
                 'h-full bg-dark-1 border-l border-gray-700 flex flex-col flex-shrink-0 overflow-hidden',
                 sidebarTransitionClasses,
-                showParticipants ? 'w-[300px] md:w-[350px] p-3 md:p-4 opacity-100' : 'w-0 p-0 opacity-0 pointer-events-none'
+                showParticipants ? 'w-[300px] md:w-[350px] opacity-100' : 'w-0 p-0 opacity-0 pointer-events-none'
             )}>
                 {showParticipants && (
                     <div className="flex flex-col h-full"> {/* עטיפה פנימית */}
                         <div className="flex justify-between items-center mb-3 flex-shrink-0">
-                            <h2 className="text-lg font-semibold">Participants</h2>
-                            <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                onClick={() => setShowParticipants(false)} 
-                                className="text-gray-400 hover:text-white hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
-                                aria-label="Close participants panel"
-                            >
-                                <X size={24} />
-                            </Button>
                         </div>
-                        <div className="flex-1 min-h-0 overflow-y-auto stream-participants-list-container"> {/* שונה ל-flex-1 ו-min-h-0 */}
+                        <div className="font-semibold flex-1 min-h-0 overflow-y-auto stream-participants-list-container"> {/* שונה ל-flex-1 ו-min-h-0 */}
                             <CallParticipantsList onClose={() => setShowParticipants(false)} />
                         </div>
                     </div>
@@ -223,7 +213,7 @@ return (
             <div className={cn(
                 'h-full bg-dark-1 border-l border-gray-700 flex flex-col flex-shrink-0 overflow-hidden',
                 sidebarTransitionClasses,
-                showChat ? 'w-[300px] md:w-[350px] p-3 md:p-4 opacity-100' : 'w-0 p-0 opacity-0 pointer-events-none'
+                showChat ? 'w-[300px] md:w-[350px] p-5 md:p-5 opacity-100' : 'w-0 p-0 opacity-0 pointer-events-none'
             )}>
                 {showChat && (
                     <div className="flex flex-col h-full"> {/* עטיפה פנימית */}
@@ -295,20 +285,7 @@ return (
                 router.push('/');
             }}/>
             
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                     <Button variant="outline" className='p-2.5 bg-dark-3 hover:bg-gray-700 border-gray-600 text-white rounded-full' title="Layout">
-                        <LayoutDashboard size={20} />
-                     </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-dark-1 text-white border-gray-700">
-                    <DropdownMenuLabel>Layout Options</DropdownMenuLabel>
-                    <DropdownMenuSeparator className="bg-gray-700"/>
-                    <DropdownMenuItem onClick={() => setLayout('grid')} className="focus:bg-gray-700 focus:text-white">Grid</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setLayout('speaker-left')} className="focus:bg-gray-700 focus:text-white">Speaker Left</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setLayout('speaker-right')} className="focus:bg-gray-700 focus:text-white">Speaker Right</DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
+
 
             <Button 
                 variant="outline"
