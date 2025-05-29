@@ -198,25 +198,20 @@ const MeetingRoom = () => {
 
             {/* Chat Sidebar */}
             <div className={cn(
-                'h-full bg-dark-1 border-l border-gray-700 flex flex-col flex-shrink-0 overflow-hidden',
-                sidebarTransitionClasses,
-                showChat ? 'w-[300px] md:w-[350px] p-3 md:p-4 opacity-100' : 'w-0 p-0 opacity-0 pointer-events-none'
-            )}>
-                {showChat && (
-                    <>
-                        <div className="flex justify-between items-center mb-3 flex-shrink-0">
-                          <h2 className="text-lg font-semibold">Chat</h2>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => setShowChat(false)} 
-                            className="text-gray-400 hover:text-white hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
-                            aria-label="Close chat panel"
-                          >
-                            <X size={24} />
-                          </Button>
-                        </div>
-                        <div ref={chatContainerRef} className="flex-grow overflow-y-auto mb-3 space-y-2.5 pr-1 min-h-0"> {/* הוסף min-h-0 */}
+    'h-full bg-dark-1 border-l border-gray-700 flex flex-col flex-shrink-0 overflow-hidden',
+    sidebarTransitionClasses,
+    showChat ? 'w-[300px] md:w-[350px] p-3 md:p-4 opacity-100' : 'w-0 p-0 opacity-0 pointer-events-none'
+)}>
+    {showChat && (
+        <>
+            {/* ילד 1: כותרת ו-X */}
+            <div className="flex justify-between items-center mb-3 flex-shrink-0 bg-red-500/30"> {/* רקע אדום שקוף */}
+              <h2 className="text-lg font-semibold">Chat</h2>
+              <Button /* ... */ > <X size={24} /> </Button>
+            </div>
+
+            {/* ילד 2: רשימת הודעות */}
+            <div ref={chatContainerRef} className="flex-grow overflow-y-auto mb-3 space-y-2.5 pr-1 min-h-0 bg-green-500/30">
                           {/* הודעות הצ'אט מרונדרות כאן */}
                           {chatMessages.map((msg) => (
                             <div
@@ -247,18 +242,10 @@ const MeetingRoom = () => {
                             </div>
                           ))}
                         </div>
-                        <form onSubmit={sendChatMessage} className="flex gap-2 mt-auto pt-2 border-t border-gray-700 flex-shrink-0">
-                          <Input
-                            type="text"
-                            placeholder="Type a message..."
-                            value={chatInput}
-                            onChange={(e) => setChatInput(e.target.value)}
-                            className="bg-dark-3 border-gray-600 focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:ring-offset-0 text-white placeholder-gray-500 flex-grow rounded-md"
-                          />
-                          <Button type="submit" className="bg-blue-1 hover:bg-blue-700 p-2.5 aspect-square rounded-md">
-                            <Send size={18} />
-                          </Button>
-                        </form>
+                        <form onSubmit={sendChatMessage} className="flex gap-2 mt-auto pt-2 border-t border-gray-700 flex-shrink-0 bg-purple-500/30"> {/* רקע סגול שקוף */}
+              <Input /* ... */ />
+              <Button /* ... */ > <Send size={18} /> </Button>
+            </form>
                     </>
                 )}
             </div>
