@@ -16,15 +16,16 @@ const MeetingSetup = ({ setIsSetupComplete }: { setIsSetupComplete : (value: boo
   }
 
   useEffect(() => {
-    if(isMicCamToggledOn) {
-        call?.camera.disable();
-        call?.microphone.disable();
+    if(!call) return; 
+
+    if(isMicCamToggledOn) { 
+        call.camera.disable();
+        call.microphone.disable();
+    } else { 
+        call.camera.enable();
+        call.microphone.enable();
     }
-    else{
-        call?.camera.enable();
-        call?.microphone.enable();
-    }
-  }, [isMicCamToggledOn, call?.camera, call?.microphone])
+}, [isMicCamToggledOn, call?.camera, call?.microphone, call]);
 
   return (
     <div className='flex h-screen w-full flex-col items-center justify-center gap-3 text-white'>
